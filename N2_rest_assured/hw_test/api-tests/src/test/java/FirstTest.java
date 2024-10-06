@@ -1,33 +1,29 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import io.restassured.RestAssured;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
+import io.restassured.mapper.ObjectMapperDeserializationContext;
+import io.restassured.mapper.ObjectMapperSerializationContext;
 import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.opentest4j.AssertionFailedError;
+import schema.*;
+import service.CartService;
 
-public class FirstTest {
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class FirstTest extends BaseTest {
     private static RequestSpecification specification = RestAssured.given().contentType(ContentType.JSON);
-
-    @BeforeAll
-    public static void beforeClass(){
-        String TOKEN = RestAssured.given()
-                .contentType(ContentType.JSON)
-                .body("{\n" +
-                        "  \"username\": \"unickUserName7787\",\n" +
-                        "  \"password\": \"someNewUserPassword7787\"\n" +
-                        "}")
-                .post("http://9b142cdd34e.vps.myjino.ru:49268/login")
-                .then().assertThat().statusCode(200)
-                .extract().body().jsonPath().getString("access_token");
-        RestAssured.baseURI = "http://9b142cdd34e.vps.myjino.ru:49268";
-        RestAssured.filters(new RequestLoggingFilter(System.out),
-                new ResponseLoggingFilter(System.out),
-                new AuthFilter(TOKEN));
-    }
 
     @Test
     public void testCase(){
@@ -62,21 +58,51 @@ public class FirstTest {
 
     @Test
     public void testToken(){
-        RestAssured.given()
+        String responseBody = RestAssured.given()
                 .contentType(ContentType.JSON)
-                .body("{\n" +
-                        "  \"product_id\": 1,\n" +
-                        "  \"quantity\": 2\n" +
-                        "}")
+                .body(new AddCartRequest(1,2))
                 .post("/cart")
                 .then().assertThat().statusCode(201)
                 .and()
-                .assertThat().body(JsonSchemaValidator.matchesJsonSchema("{\n" +
-                        "   \"message\": \"Product added to card successfully\"\n" +
-                        "}"));
+                .extract().body().asString();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            objectMapper.readValue(responseBody, SuccessMessage.class);
+        } catch (JsonProcessingException e) {
+            throw new AssertionFailedError(e.getMessage());
+        }
+
     }
 
+    @Test
+    public void testGetCart(){
+        RestAssured.given()
+                .accept(ContentType.JSON)
+                .get("/cart")
+                .then()
+                .extract().as(GetCartResponce.class);
+    }
+//    @Test
+//    public void testGetCart(){
+//        new CartService().getCart()
+//                .then()
+//                .assertThat()
+//                .statusCode(200)
+//                .and()
+//                .extract().as(GetCartResponce.class);
+//    }
 
+    @Test
+    public void testGetProducts(){
+        RestAssured.given()
+                .accept(ContentType.JSON)
+                .get("/products")
+                .then()
+                .extract().as(new TypeRef<List<Cart>>() {
+                });
+    }
 
 
 
