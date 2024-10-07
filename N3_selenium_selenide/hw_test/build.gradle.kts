@@ -47,10 +47,10 @@ tasks.register<Test>("runSmokeTests") {
     }
 }
 
-tasks.register<Test>("runHw_26_09") {
-    useJUnitPlatform()
-    val testClassName = "hw_26_09.nineTask"
-    filter {
-        includeTestsMatching(testClassName)
-    }
-}
+//tasks.register<Test>("runHw_26_09") {
+//    useJUnitPlatform()
+//    val testClassName = "hw_26_09.NineTask"
+//    filter {
+//        includeTestsMatching(testClassName)
+//    }
+//}

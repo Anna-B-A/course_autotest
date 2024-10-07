@@ -1,0 +1,11 @@
+# Игнорировать все папки allure-results в любых подкаталогах
+**/allure-results/
+
+# Игнорировать все папки allure-report в любых подкаталогах
+**/allure-report/
+
+# Исключить environment.xml из всех папок allure-results
+!**/allure-results/environment.xml
+
+# Исключить index.html из всех папок allure-report
+!**/allure-report/index.html

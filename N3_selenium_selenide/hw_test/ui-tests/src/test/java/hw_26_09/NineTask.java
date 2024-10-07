@@ -1,28 +1,15 @@
 package hw_26_09;
 
 import com.codeborne.selenide.*;
-import io.qameta.allure.Attachment;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.time.Duration;
 
 import static com.codeborne.selenide.Selenide.*;
-import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-public class nineTask {
-
-    @BeforeEach
-    void setup() {
-        Configuration.browser = "chrome";
-        open("https://the-internet.herokuapp.com/");
-    }
-
+public class NineTask extends BaseTest{
     @Test
     void checkboxes(){
         SelenideElement hrefCheckboxes = $x("//a[@href='/checkboxes']")
@@ -202,31 +189,33 @@ public class nineTask {
         sleep(2000);
         hrefStatusCodes.click();
 
-        SelenideElement elementCodeOnPage = $x("//a[text()='" + statusCode + "']");
+        SelenideElement elementCodeOnPage = $x("//a[text()='" + statusCode + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
         sleep(1500);
+
         elementCodeOnPage.click();
-        String fullText = $x("//p").getText();
-        String textForCode = fullText.split("\n")[0];
+        SelenideElement fullText = $x("//p")
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
+        String textForCode = fullText.getText().split("\n")[0];
         System.out.println(textForCode);
         sleep(1500);
-        back();
-        sleep(1500);
-        attachScreenshot("Страница статус-кода " + statusCode);
+        attachScreenshot("Page status code" + statusCode);
+//        open("https://the-internet.herokuapp.com");
     }
 
-    @AfterEach
-    void tearDown() {
-        getWebDriver().quit();
-    }
+//    @TestFactory
+//    Collection<DynamicTest> testStatusCodeWithFactory(){
+//        int [] codes = {200, 301, 404, 500};
+//
+//        return Arrays.asList(
+//                dynamicTest("Проверка статуса 200", () -> testStatusCode(200)),
+//                dynamicTest("Проверка статуса 301", () -> testStatusCode(301)),
+//                dynamicTest("Проверка статуса 404", () -> testStatusCode(404)),
+//                dynamicTest("Проверка статуса 500", () -> testStatusCode(500))
+//        );
+//    };
 
-    @Attachment(value = "{screenshotName}", type = "image/png")
-    public byte[] attachScreenshot(String screenshotName) {
-        File screenshot = Screenshots.takeScreenShotAsFile();
-        try {
-            return Files.readAllBytes(screenshot.toPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new byte[0];
-        }
-    }
+
+
+
 }
